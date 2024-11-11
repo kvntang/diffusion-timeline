@@ -41,12 +41,12 @@ def apply_noise_at_timestep(latent, noise, scheduler, timestep):
 ##########################################################################################
 
 # Adjustable parameters
-renoise_steps = 20          # Define how many steps backward to visualize
+renoise_steps = 5          # Define how many steps backward to visualize
 seed = 42                  # Seed for reproducibility
 noise_variance_scale = 1.0 # Control the variance of the noise
 
 # Load and preprocess input image
-image_path = 'a1.jpg'
+image_path = 'a2.jpg'
 image = Image.open(image_path).convert('RGB')
 
 preprocess = transforms.Compose([
