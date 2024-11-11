@@ -1,5 +1,5 @@
 import torch
-from diffusers import StableDiffusionPipeline, DDIMScheduler
+from diffusers import StableDiffusionPipeline, PNDMScheduler
 from torchvision import transforms
 from PIL import Image
 import numpy as np
@@ -32,7 +32,7 @@ def denoise_latent(noisy_latent, scheduler, timesteps, start_timestep_index, den
 
 # Adjustable parameters
 start_timestep_position = 50  # Starting position in the timeline (where input image is assumed to be)
-denoise_steps = 50           # Number of steps to denoise forward
+denoise_steps = 50          # Number of steps to denoise forward
 
 # Load and preprocess input image
 image_path = 'renoised_step_back_50.png'
@@ -56,7 +56,7 @@ pipeline = StableDiffusionPipeline.from_pretrained(
 ).to(device)
 
 # Configure scheduler and timesteps
-scheduler = DDIMScheduler.from_config(pipeline.scheduler.config)
+scheduler = PNDMScheduler.from_config(pipeline.scheduler.config)
 pipeline.scheduler = scheduler
 
 num_inference_steps = 100
@@ -72,7 +72,7 @@ with torch.no_grad():
     latent = pipeline.vae.encode(image_tensor).latent_dist.sample() * 0.18215
 
 # Generate text embeddings (optional) if you want to condition on text
-prompt = "A photorealistic cat with graceful bird wings, soaring high in a bright blue sky filled with soft, white clouds, with sunlight illuminating the wings and casting a warm glow."  # empty prompt
+prompt = "A cat with bird wings soaring in the clouds. Photorealstic."  # empty prompt
 text_input = pipeline.tokenizer(prompt, return_tensors="pt").to(device)
 text_embeddings = pipeline.text_encoder(text_input.input_ids)[0]
 
@@ -80,7 +80,7 @@ text_embeddings = pipeline.text_encoder(text_input.input_ids)[0]
 denoised_latent = denoise_latent(latent, scheduler, timesteps, start_timestep_index, denoise_steps, text_embeddings)
 
 # Save the final denoised image after the forward steps
-denoised_image = save_latent_as_image(denoised_latent, pipeline, f'betterprompt_denoised_step_forward_{denoise_steps}.png')
+denoised_image = save_latent_as_image(denoised_latent, pipeline, f'pndm_denoised_{denoise_steps}.png')
 
 # Output saved file summary
 print("Saved image:")
